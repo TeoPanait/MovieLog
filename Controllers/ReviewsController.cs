@@ -37,7 +37,7 @@ namespace MovieLog.Controllers
         {
             var review = await _reviewService.GetReviewByIdAsync(id, cancellationToken);
 
-            if (review == null) return NotFound();
+            if (review == null) throw new KeyNotFoundException($"Review with ID {id} not found.");
 
             return Ok(review);
         }

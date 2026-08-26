@@ -39,7 +39,7 @@ public class WatchlistService : IWatchlistService
 
         if (movie == null)
         {
-            throw new Exception("Filmul nu a fost gasit!"); 
+            throw new KeyNotFoundException($"Movie with ID {dto.MovieId} not found.");
         }
 
         // 2. verificam daca suerul are deja watchlist creat
@@ -48,8 +48,13 @@ public class WatchlistService : IWatchlistService
 
         Watchlist watchlistToSave;
 
+
         if (existingWatchlist != null)
         {
+            if (existingWatchlist.Movies.Any(m => m.Id == dto.MovieId))
+            {
+                throw new ArgumentException($"Filmul '{movie.Title}' este deja in watchlist.");
+            }
             existingWatchlist.Movies.Add(movie);
             _unitOfWork.WatchlistRepository.Update(existingWatchlist);
             watchlistToSave = existingWatchlist;

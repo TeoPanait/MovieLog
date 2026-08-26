@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieLog.Data;
 using MovieLog.Models;
 using Microsoft.AspNetCore.Identity;
+using MovieLog.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+//app.UseSwagger();
+//app.UseSwaggerUI();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<LoggingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseRouting();
