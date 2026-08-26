@@ -35,4 +35,16 @@ public class ReviewService : IReviewService
 
         return new ReviewDto(review.Id, review.Text, review.Rating, review.MovieId, review.UserId);
     }
-}
+    public async Task<ReviewDto?> GetReviewByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var review = await _unitOfWork.ReviewRepository.GetByIdAsync(id, cancellationToken);
+        if (review == null) return null;
+        return new ReviewDto(review.Id, review.Text, review.Rating, review.MovieId, review.UserId);
+    }
+
+    public async Task<IEnumerable<ReviewDto>> GetReviewsForMovieAsync(int movieId, CancellationToken cancellationToken = default)
+    {
+        var reviews = await _unitOfWork.ReviewRepository.GetAllAsync( cancellationToken);
+        return reviews.Where(r =>r.MovieId == movieId).Select(r => new ReviewDto(r.Id, r.Text, r.Rating, r.MovieId, r.UserId));
+    }
+}   

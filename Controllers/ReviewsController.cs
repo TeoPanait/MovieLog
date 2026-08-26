@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MovieLog.Data;
 using MovieLog.Models;
 using MovieLog.DTOs;
+using MovieLog.Services;
 
 namespace MovieLog.Controllers
 {
@@ -10,42 +11,42 @@ namespace MovieLog.Controllers
     [Route("api/[controller]")]
     public class ReviewsController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public ReviewsController(AppDbContext context)
+        private readonly IReviewService _reviewService;
+        public ReviewsController(IReviewService reviewService)
         {
-            _context = context;
+            _reviewService = reviewService;
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews(CancellationToken cancellationToken)
         {
-            var reviews = await _context.Reviews
-                .Select(r => new ReviewDto(r.Id, r.Text, r.Rating, r.MovieId, r.UserId))
-                .ToListAsync();
+            var reviews = await _reviewService.GetAllReviewsAsync(cancellationToken);
             return Ok(reviews);
         }
 
         [HttpGet("movie/{movieId}")]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsForMovie(int movieId)
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviewsForMovie(int movieId, CancellationToken cancellationToken)
         {
-            var reviews = await _context.Reviews
-                .Where(r => r.MovieId == movieId)
-                .Select(r => new ReviewDto(r.Id, r.Text, r.Rating, r.MovieId, r.UserId))
-                .ToListAsync();
+            var reviews = await _reviewService.GetReviewsForMovieAsync(movieId, cancellationToken);
+           
             return Ok(reviews);
         }
-        [HttpPost]
-        public async Task<ActionResult<Review>> PostReview(CreateReviewDto dto)
+
+        // GET: /api/reviews/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ReviewDto>> GetReview(int id, CancellationToken cancellationToken)
         {
-            var review = new Review
-            {
-                Text = dto.Text,
-                Rating = dto.Rating,
-                MovieId = dto.MovieId,
-                UserId = dto.UserId
-            };
-            _context.Reviews.Add(review);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetReviews), new { id = review.Id }, new ReviewDto(review.Id, review.Text, review.Rating, review.MovieId, review.UserId));
+            var review = await _reviewService.GetReviewByIdAsync(id, cancellationToken);
+
+            if (review == null) return NotFound();
+
+            return Ok(review);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<ReviewDto>> PostReview(CreateReviewDto dto, CancellationToken cancellationToken)
+        {
+            var createdReview = await _reviewService.CreateReviewAsync(dto, cancellationToken);
+            return CreatedAtAction(nameof(GetReview), new { id = createdReview.Id }, createdReview);
         }
     }
 }
