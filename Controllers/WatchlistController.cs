@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MovieLog.DTOs;
 using MovieLog.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MovieLog.Controllers
 {
@@ -42,6 +43,22 @@ namespace MovieLog.Controllers
 
             // Returneaza codul 201 (Creat cu succes)
             return CreatedAtAction(nameof(GetWatchlist), new { id = createdWatchlist.Id }, createdWatchlist);
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutWatchlist(int id, UpdateWatchlistDto dto, CancellationToken cancellationToken)
+        {
+            await _watchlistService.UpdateWatchlistAsync(id, dto, cancellationToken);
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteWatchlist(int id, CancellationToken cancellationToken)
+        {
+            await _watchlistService.DeleteWatchlistAsync(id, cancellationToken);
+            return NoContent();
         }
     }
 }

@@ -4,6 +4,7 @@ using MovieLog.Data;
 using MovieLog.Models;
 using MovieLog.DTOs;
 using MovieLog.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MovieLog.Controllers
 {
@@ -42,11 +43,28 @@ namespace MovieLog.Controllers
             return Ok(review);
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ReviewDto>> PostReview(CreateReviewDto dto, CancellationToken cancellationToken)
         {
             var createdReview = await _reviewService.CreateReviewAsync(dto, cancellationToken);
             return CreatedAtAction(nameof(GetReview), new { id = createdReview.Id }, createdReview);
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutReview(int id, UpdateReviewDto dto, CancellationToken cancellationToken)
+        {
+            await _reviewService.UpdateReviewAsync(id, dto, cancellationToken);
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteReview(int id, CancellationToken cancellationToken)
+        {
+            await _reviewService.DeleteReviewAsync(id, cancellationToken);
+            return NoContent();
         }
     }
 }

@@ -9,3 +9,9 @@ public record CreateReviewDto
     string? UserId
 
 );
+
+public record UpdateReviewDto
+(
+    [Required] string Text,
+    [Range(1, 10)] int Rating
+);

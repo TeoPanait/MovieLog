@@ -47,4 +47,25 @@ public class ReviewService : IReviewService
         var reviews = await _unitOfWork.ReviewRepository.GetAllAsync( cancellationToken);
         return reviews.Where(r =>r.MovieId == movieId).Select(r => new ReviewDto(r.Id, r.Text, r.Rating, r.MovieId, r.UserId));
     }
+
+    public async Task UpdateReviewAsync(int id, UpdateReviewDto dto, CancellationToken cancellationToken = default)
+    {
+        var review = await _unitOfWork.ReviewRepository.GetByIdAsync(id, cancellationToken);
+        if (review == null) throw new KeyNotFoundException($"Review with ID {id} not found");
+        //suprascriem doar ce e perims
+        review.Text = dto.Text;
+        review.Rating = dto.Rating;
+
+        _unitOfWork.ReviewRepository.Update(review);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteReviewAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var review = await _unitOfWork.ReviewRepository.GetByIdAsync(id, cancellationToken);
+        if (review == null) throw new KeyNotFoundException($"Review with ID {id} not found");
+
+        _unitOfWork.ReviewRepository.Delete(review);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
 }   

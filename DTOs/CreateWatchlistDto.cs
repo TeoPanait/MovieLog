@@ -8,3 +8,7 @@ public record CreateWatchlistDto
     string? UserId //pt a sti a cui e lsita
 );
 
+public record UpdateWatchlistDto
+(
+    List<int> MovieIds
+);

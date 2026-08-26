@@ -2,6 +2,7 @@
 using MovieLog.Models;
 using MovieLog.Repositories;
 
+
 namespace MovieLog.Services;
 
 public class WatchlistService : IWatchlistService
@@ -79,5 +80,29 @@ public class WatchlistService : IWatchlistService
             watchlistToSave.UserId,
             watchlistToSave.Movies.Select(m => m.Title).ToList()
         );
+    }
+
+    public async Task UpdateWatchlistAsync(int id, UpdateWatchlistDto dto, CancellationToken cancellationToken = default)
+    {
+        var watchlist = await _unitOfWork.WatchlistRepository.GetByIdWithDetailsAsync(id, cancellationToken);
+        if (watchlist == null) throw new KeyNotFoundException($"Watchlist with ID {id} not found");
+        
+        var allMovies = await _unitOfWork.MovieRepository.GetAllAsync(cancellationToken);
+        var newMovies = allMovies.Where(m => dto.MovieIds.Contains(m.Id)).ToList();
+
+        watchlist.Movies.Clear();
+        foreach(var movie in newMovies)
+            watchlist.Movies.Add(movie);
+
+        _unitOfWork.WatchlistRepository.Update(watchlist);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteWatchlistAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var watchlist = await _unitOfWork.WatchlistRepository.GetByIdAsync(id, cancellationToken);
+        if (watchlist == null) throw new KeyNotFoundException($"Watchlist with ID {id} not found");
+        _unitOfWork.WatchlistRepository.Delete(watchlist);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
