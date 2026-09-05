@@ -47,6 +47,9 @@ builder.Services.AddScoped<MovieLog.Services.IGenreService, MovieLog.Services.Ge
 //intregistam Serviciul de Review-uri
 builder.Services.AddScoped<MovieLog.Services.IReviewService, MovieLog.Services.ReviewService>();
 
+// inregistram Serviciul de Statistici
+builder.Services.AddScoped<MovieLog.Services.IStatsService, MovieLog.Services.StatsService>();
+
 var app = builder.Build();
 
 // popularea intiala a bazzei de date cu un admin si roluri

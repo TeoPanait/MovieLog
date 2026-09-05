@@ -13,7 +13,7 @@ public class StatsService : IStatsService
     public async Task<IEnumerable<TopRatedMovieDto>> GetTopRatedMoviesAsync(int limit, CancellationToken cancellationToken)
     {
         //toate filmele cu detalii
-        var movies = await _unitOfWork.MovieRespository.GetAllWithDetailsAsync(limit, cancellationToken);
+        var movies = await _unitOfWork.MovieRepository.GetAllWithDetailsAsync(cancellationToken);
 
         var reviews = await _unitOfWork.ReviewRepository.GetAllAsync(cancellationToken);
         //grupare de review pe mid si calc medie

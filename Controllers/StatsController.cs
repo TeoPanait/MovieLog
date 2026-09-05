@@ -17,7 +17,7 @@ public class StatsController : ControllerBase
 
     //GET: api/stats/top-rated?limit=3
 	[HttpGet("top-rated")]
-	public async Task<ActionResult<IEnumerable<MovieDto>>> GetTopRated([FromQuery] int limit = 3)
+	public async Task<ActionResult<IEnumerable<TopRatedMovieDto>>> GetTopRated([FromQuery] int limit, CancellationToken cancellationToken)
 	{
 		if(limit <= 0) limit = 3;
 		var topRated = await _statsService.GetTopRatedMoviesAsync(limit, cancellationToken);

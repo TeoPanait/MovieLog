@@ -10,6 +10,32 @@
 }
 
 <div class="container mt-4">
+    <!-- Vue widget: Top 3 rated movies -->
+<div id="top-rated-widget" class="mb-5">
+    <h3 class="mb-3">Top 3 filme cele mai bine notate</h3>
+
+    <div v-if="isLoading" class="text-muted">Se incarca statisticile...</div>
+
+    <div v-else-if="error" class="alert alert-danger">
+        Eroare la incarcarea statisticilor: {{ error }}
+    </div>
+
+    <div v-else class="row">
+        <div v-for="(movie, index) in topRated" :key="movie.movieId" class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <img v-if="movie.imageUrl" :src="movie.imageUrl" class="card-img-top" :alt="movie.title" style="height: 200px; object-fit: cover;">
+                <div v-else class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <span class="text-muted">Fara imagine</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">#{{ index + 1 }}. {{ movie.title }}</h5>
+                    <p class="mb-1">Rating mediu: <strong>{{ movie.averageRating }}</strong> / 10</p>
+                    <p class="text-muted small">Bazat pe {{ movie.reviewCount }} recenzii</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     <h2>Filmele Noastre</h2>
 
     @if (isAdmin)
@@ -118,4 +144,32 @@
             .then(r => { if (r.ok) alert("Filmul a fost salvat in lista ta!"); });
         }
     </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const topRated = ref([]);
+            const isLoading = ref(true);
+            const error = ref(null);
+
+            onMounted(async () => {
+                try {
+                    const response = await fetch('/api/stats/top-rated?limit=3');
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    topRated.value = await response.json();
+                } catch (err) {
+                    error.value = err.message;
+                } finally {
+                    isLoading.value = false;
+                }
+            });
+
+            return { topRated, isLoading, error };
+        }
+    }).mount('#top-rated-widget');
+</script>
 }
